@@ -1,5 +1,5 @@
 /*
-  PubSubClient.cpp - A simple client for MQTT.
+  PubSubClientT.cpp - A simple client for MQTT.
   Nick O'Leary
   http://knolleary.net
 */
@@ -7,39 +7,45 @@
 #include "PubSubClient.h"
 #include "Arduino.h"
 
-PubSubClient::PubSubClient() {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT() {
     this->_state = MQTT_DISCONNECTED;
     this->_client = NULL;
     this->stream = NULL;
     setCallback(NULL);
 }
 
-PubSubClient::PubSubClient(Client& client) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT(Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setClient(client);
     this->stream = NULL;
 }
 
-PubSubClient::PubSubClient(IPAddress addr, uint16_t port, Client& client) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT(IPAddress addr, uint16_t port, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(addr, port);
     setClient(client);
     this->stream = NULL;
 }
-PubSubClient::PubSubClient(IPAddress addr, uint16_t port, Client& client, Stream& stream) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT(IPAddress addr, uint16_t port, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(addr,port);
     setClient(client);
     setStream(stream);
 }
-PubSubClient::PubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(addr, port);
     setCallback(callback);
     setClient(client);
     this->stream = NULL;
 }
-PubSubClient::PubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(addr,port);
     setCallback(callback);
@@ -47,26 +53,30 @@ PubSubClient::PubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATUR
     setStream(stream);
 }
 
-PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, Client& client) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT(uint8_t *ip, uint16_t port, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(ip, port);
     setClient(client);
     this->stream = NULL;
 }
-PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, Client& client, Stream& stream) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT(uint8_t *ip, uint16_t port, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(ip,port);
     setClient(client);
     setStream(stream);
 }
-PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(ip, port);
     setCallback(callback);
     setClient(client);
     this->stream = NULL;
 }
-PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(ip,port);
     setCallback(callback);
@@ -74,26 +84,30 @@ PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, 
     setStream(stream);
 }
 
-PubSubClient::PubSubClient(const char* domain, uint16_t port, Client& client) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT(const char* domain, uint16_t port, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(domain,port);
     setClient(client);
     this->stream = NULL;
 }
-PubSubClient::PubSubClient(const char* domain, uint16_t port, Client& client, Stream& stream) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT(const char* domain, uint16_t port, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(domain,port);
     setClient(client);
     setStream(stream);
 }
-PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(domain,port);
     setCallback(callback);
     setClient(client);
     this->stream = NULL;
 }
-PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>::PubSubClientT(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(domain,port);
     setCallback(callback);
@@ -101,19 +115,23 @@ PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGN
     setStream(stream);
 }
 
-boolean PubSubClient::connect(const char *id) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::connect(const char *id) {
     return connect(id,NULL,NULL,0,0,0,0);
 }
 
-boolean PubSubClient::connect(const char *id, const char *user, const char *pass) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::connect(const char *id, const char *user, const char *pass) {
     return connect(id,user,pass,0,0,0,0);
 }
 
-boolean PubSubClient::connect(const char *id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::connect(const char *id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
     return connect(id,NULL,NULL,willTopic,willQos,willRetain,willMessage);
 }
 
-boolean PubSubClient::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
     if (!connected()) {
         int result = 0;
 
@@ -206,7 +224,8 @@ boolean PubSubClient::connect(const char *id, const char *user, const char *pass
 }
 
 // reads a byte into result
-boolean PubSubClient::readByte(uint8_t * result) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::readByte(uint8_t * result) {
    uint32_t previousMillis = millis();
    while(!_client->available()) {
      uint32_t currentMillis = millis();
@@ -219,7 +238,8 @@ boolean PubSubClient::readByte(uint8_t * result) {
 }
 
 // reads a byte into result[*index] and increments index
-boolean PubSubClient::readByte(uint8_t * result, uint16_t * index){
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::readByte(uint8_t * result, uint16_t * index){
   uint16_t current_index = *index;
   uint8_t * write_address = &(result[current_index]);
   if(readByte(write_address)){
@@ -229,7 +249,8 @@ boolean PubSubClient::readByte(uint8_t * result, uint16_t * index){
   return false;
 }
 
-uint16_t PubSubClient::readPacket(uint8_t* lengthLength) {
+template<size_t BUFFER_SIZE>
+uint16_t PubSubClientT<BUFFER_SIZE>::readPacket(uint8_t* lengthLength) {
     uint16_t len = 0;
     if(!readByte(buffer, &len)) return 0;
     bool isPublish = (buffer[0]&0xF0) == MQTTPUBLISH;
@@ -266,20 +287,21 @@ uint16_t PubSubClient::readPacket(uint8_t* lengthLength) {
                 this->stream->write(digit);
             }
         }
-        if (len < MQTT_MAX_PACKET_SIZE) {
+        if (len < BUFFER_SIZE) {
             buffer[len] = digit;
         }
         len++;
     }
 
-    if (!this->stream && len > MQTT_MAX_PACKET_SIZE) {
+    if (!this->stream && len > BUFFER_SIZE) {
         len = 0; // This will cause the packet to be ignored.
     }
 
     return len;
 }
 
-boolean PubSubClient::loop() {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::loop() {
     if (connected()) {
         unsigned long t = millis();
         if ((t - lastInActivity > MQTT_KEEPALIVE*1000UL) || (t - lastOutActivity > MQTT_KEEPALIVE*1000UL)) {
@@ -342,21 +364,25 @@ boolean PubSubClient::loop() {
     return false;
 }
 
-boolean PubSubClient::publish(const char* topic, const char* payload) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::publish(const char* topic, const char* payload) {
     return publish(topic,(const uint8_t*)payload,strlen(payload),false);
 }
 
-boolean PubSubClient::publish(const char* topic, const char* payload, boolean retained) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::publish(const char* topic, const char* payload, boolean retained) {
     return publish(topic,(const uint8_t*)payload,strlen(payload),retained);
 }
 
-boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::publish(const char* topic, const uint8_t* payload, unsigned int plength) {
     return publish(topic, payload, plength, false);
 }
 
-boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::publish(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained) {
     if (connected()) {
-        if (MQTT_MAX_PACKET_SIZE < 5 + 2+strlen(topic) + plength) {
+        if (BUFFER_SIZE < 5 + 2+strlen(topic) + plength) {
             // Too long
             return false;
         }
@@ -376,7 +402,8 @@ boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigne
     return false;
 }
 
-boolean PubSubClient::publish_P(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::publish_P(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained) {
     uint8_t llen = 0;
     uint8_t digit;
     unsigned int rc = 0;
@@ -421,7 +448,8 @@ boolean PubSubClient::publish_P(const char* topic, const uint8_t* payload, unsig
     return rc == tlen + 4 + plength;
 }
 
-boolean PubSubClient::write(uint8_t header, uint8_t* buf, uint16_t length) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::write(uint8_t header, uint8_t* buf, uint16_t length) {
     uint8_t lenBuf[4];
     uint8_t llen = 0;
     uint8_t digit;
@@ -463,15 +491,17 @@ boolean PubSubClient::write(uint8_t header, uint8_t* buf, uint16_t length) {
 #endif
 }
 
-boolean PubSubClient::subscribe(const char* topic) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::subscribe(const char* topic) {
     return subscribe(topic, 0);
 }
 
-boolean PubSubClient::subscribe(const char* topic, uint8_t qos) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::subscribe(const char* topic, uint8_t qos) {
     if (qos < 0 || qos > 1) {
         return false;
     }
-    if (MQTT_MAX_PACKET_SIZE < 9 + strlen(topic)) {
+    if (BUFFER_SIZE < 9 + strlen(topic)) {
         // Too long
         return false;
     }
@@ -491,8 +521,9 @@ boolean PubSubClient::subscribe(const char* topic, uint8_t qos) {
     return false;
 }
 
-boolean PubSubClient::unsubscribe(const char* topic) {
-    if (MQTT_MAX_PACKET_SIZE < 9 + strlen(topic)) {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::unsubscribe(const char* topic) {
+    if (BUFFER_SIZE < 9 + strlen(topic)) {
         // Too long
         return false;
     }
@@ -510,7 +541,8 @@ boolean PubSubClient::unsubscribe(const char* topic) {
     return false;
 }
 
-void PubSubClient::disconnect() {
+template<size_t BUFFER_SIZE>
+void PubSubClientT<BUFFER_SIZE>::disconnect() {
     buffer[0] = MQTTDISCONNECT;
     buffer[1] = 0;
     _client->write(buffer,2);
@@ -519,7 +551,8 @@ void PubSubClient::disconnect() {
     lastInActivity = lastOutActivity = millis();
 }
 
-uint16_t PubSubClient::writeString(const char* string, uint8_t* buf, uint16_t pos) {
+template<size_t BUFFER_SIZE>
+uint16_t PubSubClientT<BUFFER_SIZE>::writeString(const char* string, uint8_t* buf, uint16_t pos) {
     const char* idp = string;
     uint16_t i = 0;
     pos += 2;
@@ -532,8 +565,8 @@ uint16_t PubSubClient::writeString(const char* string, uint8_t* buf, uint16_t po
     return pos;
 }
 
-
-boolean PubSubClient::connected() {
+template<size_t BUFFER_SIZE>
+boolean PubSubClientT<BUFFER_SIZE>::connected() {
     boolean rc;
     if (_client == NULL ) {
         rc = false;
@@ -550,39 +583,46 @@ boolean PubSubClient::connected() {
     return rc;
 }
 
-PubSubClient& PubSubClient::setServer(uint8_t * ip, uint16_t port) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>& PubSubClientT<BUFFER_SIZE>::setServer(uint8_t * ip, uint16_t port) {
     IPAddress addr(ip[0],ip[1],ip[2],ip[3]);
     return setServer(addr,port);
 }
 
-PubSubClient& PubSubClient::setServer(IPAddress ip, uint16_t port) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>& PubSubClientT<BUFFER_SIZE>::setServer(IPAddress ip, uint16_t port) {
     this->ip = ip;
     this->port = port;
     this->domain = NULL;
     return *this;
 }
 
-PubSubClient& PubSubClient::setServer(const char * domain, uint16_t port) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>& PubSubClientT<BUFFER_SIZE>::setServer(const char * domain, uint16_t port) {
     this->domain = domain;
     this->port = port;
     return *this;
 }
 
-PubSubClient& PubSubClient::setCallback(MQTT_CALLBACK_SIGNATURE) {
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>& PubSubClientT<BUFFER_SIZE>::setCallback(MQTT_CALLBACK_SIGNATURE) {
     this->callback = callback;
     return *this;
 }
 
-PubSubClient& PubSubClient::setClient(Client& client){
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>& PubSubClientT<BUFFER_SIZE>::setClient(Client& client){
     this->_client = &client;
     return *this;
 }
 
-PubSubClient& PubSubClient::setStream(Stream& stream){
+template<size_t BUFFER_SIZE>
+PubSubClientT<BUFFER_SIZE>& PubSubClientT<BUFFER_SIZE>::setStream(Stream& stream){
     this->stream = &stream;
     return *this;
 }
 
-int PubSubClient::state() {
+template<size_t BUFFER_SIZE>
+int PubSubClientT<BUFFER_SIZE>::state() {
     return this->_state;
 }
